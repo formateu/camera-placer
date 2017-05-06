@@ -5,7 +5,9 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{polski}
+\usepackage{mathtools}
 \usepackage[utf8]{inputenc}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
 \title{Rozmieszczanie kamer bezpieczeństwa}
 \author{Przemysław Kopański \\ Mateusz Forc}
@@ -35,9 +37,9 @@ aby minimalną liczbą kamer móc obserwować dowolne miejsce
 	\end{itemize}
 \end{itemize}
 %
-\section{Przestrzeń Przeszukiwań}
-Zbiór kamer wraz z ich pozycjami.
-Pierwszy zbiór zawiera sufit(obszar rzutu/obszar jednej kamery) kamer
+\section{Przestrzeń przeszukiwań}
+Zbiór kamer wraz z ich pozycjami. \\
+Pierwszy zbiór zawiera $\lceil$ obszar rzutu/obszar jednej kamery$\rceil$ kamer
 rozmieszczonych losowo wewnątrz wielokątu.
 Do kolejnego stanu możemy przejść poprzez dodanie/usunięcie kamery lub przemieszczenie
 jednej z aktualnie umieszczonych kamer.
@@ -72,7 +74,9 @@ $d_p = 2d_k = 1 $ to będziemy w stanie zaakceptować dwukrotna
 ilość kamer w zamian za dwukrotnie większe pokrycie.
 %
 \subsection{Przykład}
-\includegraphics[scale=0.9]{example_rzut.png}
+\begin{center}
+\includegraphics[scale=0.9]{example_projection.png}
+\end{center}
 Podane pomieszczenie ma pole powierzchni równe 103.38. \\
 Zasięgi kamer są między sobą rozłączne, a ich pole wynosi 62.83. \\
 Minimalna teoretyczna liczba kamery wynosi 9. \\
