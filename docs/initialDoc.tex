@@ -30,7 +30,7 @@ aby minimalną liczbą kamer móc obserwować dowolne miejsce
 	\end{itemize}
 \item rzut pomieszczenia reprezentowany jest przez zbiór punktów
 	\begin{itemize}
-	\item punkty mają współrzędne odpowiadające I ćwiartce wykresu \[x \leq 0, y \leq 0\]
+	\item punkty mają współrzędne odpowiadające I ćwiartce wykresu \[x \geq 0, y \geq 0\]
 	\item punkty podawane są jako lista, która reprezentuje zamknięty wielokąt - muszą one zostać
 	      podane we właściwej kolejności, tak aby można je było jednoznacznie połączyć 
 	      (każde dwa kolejne punkty łączone są w odcinek)
@@ -38,8 +38,8 @@ aby minimalną liczbą kamer móc obserwować dowolne miejsce
 \end{itemize}
 %
 \section{Przestrzeń przeszukiwań}
-Zbiór kamer wraz z ich pozycjami. \\
-Pierwszy zbiór zawiera $\lceil$ obszar rzutu/obszar jednej kamery$\rceil$ kamer
+Pojedynczym elementem przestrzeni przeszukiwań jest zbiór kamer wraz z ich pozycjami. \\
+Rozwiązanie początkowe zawiera zbiór składający się z $\lceil$obszar rzutu/obszar jednej kamery$\rceil$ kamer
 rozmieszczonych losowo wewnątrz wielokątu.
 Do kolejnego stanu możemy przejść poprzez dodanie/usunięcie kamery lub przemieszczenie
 jednej z aktualnie umieszczonych kamer.
@@ -49,7 +49,7 @@ Do zbioru kamer nie można wstawić kamery, która jest na zewnątrz obserwowane
 \section{Funkcja celu}
 Dostępna informacja: \\
 \footnotesize
-$k_{min}$ - minimalna teoretyczna liczba kamer dla aktualnie rozpatrywanego rzutu \\
+$k_{min}$ - minimalna teoretyczna liczba kamer dla aktualnie rozpatrywanego rzutu \\ \indent ($\lceil$obszar rzutu/obszar jednej kamery$\rceil$) \\
 \normalsize
 %
 \newline
@@ -93,7 +93,13 @@ Algorytmy wspinaczkowe nie sprawdzą się w opisywanej przestrzeni ze względu n
 ekstremów lokalnych. Stosując algorytm symulowanego wyżarzania zapewnione jest,
 że algorytm nie ‘utknie’ w ekstremum. Wraz z rosnącą liczbą iteracji można zmniejszać temperaturę,
 w celu znalezienia coraz lepszego rozwiązania. Dodatkowym mechanizmem pozwalającym uniknąć
-zakotwiczenia w ekstremum lokalnym jest tabuizacja.
+zakotwiczenia w ekstremum lokalnym jest tabuizacja.\\
+
+Podana metoda wymaga strojenia ze względu na 2 parametry:
+\begin{enumerate}
+  \item wielkość kolejki tabu - określa ile maksymalnie jednocześnie punktów przestrzeni może ulec tabuizacji
+  \item parametr funkcji temperatury - do doboru temperatury zostanie wykorzystana funkcja zależna od numeru iteracji, która udostępni parametr do strojenia
+\end{enumerate}
 \section{Przewidywane wyniki pracy}
 Dla kilkunastu zadanych rzutów ilustrujących różne warianty pomieszczeń np. długie, wąskie i kręte,
 duże otwarte zostaną przeprowadzone symulacje w celu odnalezienia i zaprezentowania
