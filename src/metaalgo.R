@@ -176,7 +176,7 @@ generateMap <- function(pointsX, pointsY, scale) {
         else if (lastVal != 1) { flag <- 0 }
       } else if (flag == 1 && map[x,y] != 1) {
         map[x,y] <- 3
-      } else { #flag == 0
+      } else if (map[x,y] == 1){ #flag == 0
         flag <- 1
       }
       lastVal <- map[x,y]
@@ -207,13 +207,41 @@ print(dim(sampleMap))
 "
 }
 
-samplePointsX <- c(1,5,5,1)
-samplePointsY <- c(1,1,6,6)
-#sampleMap <- generateMap(samplePointsX, samplePointsY, 1)
-sampleMap2 <- generateMap(samplePointsX, samplePointsY, 2)
+generateInitState <- function (map, camNum) {
+  if (FALSE) {
+    "
+    generates vector of initial camera positions
+    for given map and camera number
+    in allowed space (inside stage)
+    "
+  }
+  result <- list()
+  dimX <- dim(map)[1]
+  dimY <- dim(map)[2]
 
-#print(sampleMap)
-print(sampleMap2)
+  actCamNum <- 0
+  i <- 1
+
+  repeat {
+    repeat {
+      Xpos <- sample(1:dimX, 1)
+      Ypos <- sample(1:dimY, 1)
+      point <- c(Xpos, Ypos)
+
+      if (map[Xpos, Ypos] == 3 && !(point %in% result)) {
+        result[[i]] <- point
+        i <- i + 1
+        break
+      }
+    }
+
+    actCamNum <- actCamNum + 1
+
+    if (actCamNum == camNum) { break }
+  }
+
+  return(result)
+}
 
 
 initGlobals <- function() {
