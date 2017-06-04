@@ -1,3 +1,6 @@
+require(compiler)
+enableJIT(3)
+
 PriorityQueue <- function() {
   keys <- values <- NULL
   curBest <- 0
@@ -48,19 +51,22 @@ anealling <- function(initialPointGenerator, calculateTemperature,
   log <- PriorityQueue()
   #log$insertUnique(q(x), x)
   while (runningFunc(k)) {
-    print(k)
+    #print(k)
 
     t <- calculateTemperature(k)
     y <- selectRandomNeighbour(x)
 
-    if (q(y) > q(x))
-      x <- y
-    else if (runif(1, 0, 1) < exp(-abs((q(y)-q(x))/t)))
-      x <- y
+    # for optimization
+    goalX <- q(x)
+    goalY <- q(y)
 
-    consumerFunc(k, x, q(x))
-    #log$insertUnique(q(x), x)
     # draws the point on the graph and constructs graph
+    consumerFunc(k, x, goalX, goalY)
+
+    if (goalY > goalX)
+      x <- y
+    else if (runif(1, 0, 1) < exp(-abs((goalY-goalX)/t)))
+      x <- y
 
     k <- k + 1
   }
@@ -119,7 +125,7 @@ goalFunction <- function(kmin, dp, dk, coveringFunc) {
     k <- length(x)
     p <- coveringFunc(x)
 
-    return(dp*p - dk*100*max(k, kmin)/kmin)
+    return(dp*100*p - (dk*100*max(k-kmin, 0)/kmin))
   }
 }
 
@@ -131,7 +137,7 @@ generateRandomNeighbour <- function(map) {
     # map is needed to check if new position is inside the building
     los <- runif(1, 0, 1)
     inScope <- isInScope(dim(map)[1], dim(map)[2])
-    if (length(solution) != 0 && los < 0.95) {
+    if (length(solution) != 0 && los < 0.9985) {
       # move camera
       cameraIter <- sample(1:length(solution), 1)
       repeat {
@@ -148,7 +154,7 @@ generateRandomNeighbour <- function(map) {
         }
       }
 
-    } else if (length(solution) == 0 || los < 0.99) {
+    } else if (length(solution) == 0 || los < 0.9995) {
       # add camera
       Xdim <- dim(map)[1]
       Ydim <- dim(map)[2]
@@ -314,21 +320,28 @@ generateInitState <- function (map, camNum) {
 initGlobals <- function() {
   plotDataIter <<- c()
   plotDataGoal <<- c()
-  #plotDataSolution <<- c()
+  plotDataGoalGenerated <<- c()
+  plotDataSolution <<- c()
 }
 
 # k - nr iteracji
 # x - rozwiazanie
 # q - wartosc f celu dla rozwiazania
-consumeNewData <- function(k, x, q) {
+consumeNewData <- function(k, x, qx, qy) {
   plotDataIter <<- c(plotDataIter, k)
-  plotDataGoal <<- c(plotDataGoal, q)
   #plotDataSolution <<- c(plotDataSolution, x)
+  plotDataGoal <<- c(plotDataGoal, qx)
+  plotDataGoalGenerated <<- c(plotDataGoalGenerated, qy)
 }
 
 drawGraphs <- function() {
-  plot(plotDataIter, plotDataGoal, main="Wartosc f celu", type="l",
+  jpeg('plot.jpg')
+  par(mfrow=c(2,1))
+  plot(plotDataIter, plotDataGoal, main="Wartosc funkcji celu aktualnie wybranego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
+  plot(plotDataIter, plotDataGoalGenerated, main="Wartosc funkcji celu wygenerowanego punktu", type="l",
+       xlab="Nr iteracji", ylab="Funkcja celu")
+  dev.off()
 }
 
 main <- function(xPoints, yPoints, scale, cameraRadius) {
@@ -338,13 +351,12 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
   cameraRadius <- scale * cameraRadius
   cameraField <- pi * cameraRadius * cameraRadius
   cameraNumber <- ceiling(mapField / cameraField)
-  print(cameraNumber)
   anealling(function() {generateInitState(map, cameraNumber)},
             temperatureFunction(0),
             generateRandomNeighbour(map),
             keep_running,
-            goalFunction(cameraNumber, 1, 1, function(x) {
-                           calculateCovering(map,mapField, cameraRadius, x)
+            goalFunction(cameraNumber, 1, 0.5, function(x) {
+                           calculateCovering(map, mapField, cameraRadius, x)
                        }),
             consumeNewData)
   drawGraphs()
@@ -355,4 +367,4 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
 samplePointsX <- c(1, 1, 3, 3, 5, 5, 4, 4, 8, 8, 10, 10)
 samplePointsY <- c(1, 7, 7, 10, 10, 6, 6, 3, 3, 9, 9, 1)
 
-main(samplePointsX, samplePointsY, 5, 3)
+main(samplePointsX, samplePointsY, 5, 2)
