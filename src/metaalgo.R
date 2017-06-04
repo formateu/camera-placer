@@ -1,19 +1,66 @@
+PriorityQueue <- function() {
+  keys <- values <- NULL
+  curBest <- 0
+
+  top <- function() { values[[curBest]] }
+
+  insertUnique <- function(key, val) {
+    if (length(values) == 0) {
+      keys <<- list(key)
+      values <<- list(val)
+      curBest <<- 1
+    } else {
+      flag <- TRUE
+      for (elem in values) {
+        if (compareLists(elem, val)) {
+          flag <- FALSE
+          break
+        }
+      }
+      if (flag) {
+        values[[length(values)+1]] <<- val
+        keys[[length(keys)+1]] <<- key
+        if (key > keys[[curBest]]) {
+          curBest <<- length(keys)
+        }
+      }
+    }
+  }
+  environment()
+}
+
+compareLists <- function(l1, l2) {
+  lengthsComparison <- length(l1) == length(l2)
+  intersectNum <- length(intersect(l1, l2))
+  if (length(l1) == length(l2)) {
+    if (intersectNum == length(l1)) {
+      TRUE
+    }
+  }
+  FALSE
+}
+
 # q - funkcja celu
 anealling <- function(initialPointGenerator, calculateTemperature,
                       selectRandomNeighbour, runningFunc, q, consumerFunc) {
   k <- 0
   x <- initialPointGenerator()
+  log <- PriorityQueue()
+  #log$insertUnique(q(x), x)
   while (runningFunc(k)) {
     print(k)
+
     t <- calculateTemperature(k)
     y <- selectRandomNeighbour(x)
+
     if (q(y) > q(x))
       x <- y
-    else if (runif(1, 0, 1) < exp(-abs(q(y)-q(x)/t)))
+    else if (runif(1, 0, 1) < exp(-abs((q(y)-q(x))/t)))
       x <- y
 
-    # draws the point on the graph and constructs graph
     consumerFunc(k, x, q(x))
+    #log$insertUnique(q(x), x)
+    # draws the point on the graph and constructs graph
 
     k <- k + 1
   }
@@ -21,9 +68,14 @@ anealling <- function(initialPointGenerator, calculateTemperature,
 
 
 keep_running <- function(k) {
-  k < 1000
+  k < 2000
 }
 
+isInScope <- function(xmax, ymax) {
+  function(x, y) {
+    x > 0 && x <= xmax && y > 0 && y <= ymax
+  }
+}
 
 # map - matrix representing a map
 # mapfield - number representing empty field in building plan
@@ -37,7 +89,8 @@ calculateCovering <- function(map, mapfield, radius, solution) {
 
   cameraFieldCount <- 0L
 
-  print(solution)
+  inScope <- isInScope(dim(map)[1], dim(map)[2])
+
   for (camera in solution) {
     x <- camera[1]
     y <- camera[2]
@@ -45,7 +98,7 @@ calculateCovering <- function(map, mapfield, radius, solution) {
     # brute force filled circle drawing
     for (y1 in -radius:radius) {
       for (x1 in -radius:radius) {
-        if (!is.na(map[x+x1,y+y1]) # check if location in scope
+        if (inScope(x+x1, y+y1) # check if location in scope
             && map[x+x1,y+y1] == 3 # check if field can be colored
             && x1*x1+y1*y1 <= radius*radius) { # check field is in camera's range
           map[x+x1,y+y1] <- 4
@@ -66,7 +119,7 @@ goalFunction <- function(kmin, dp, dk, coveringFunc) {
     k <- length(x)
     p <- coveringFunc(x)
 
-    return(dp*p - 100*max(k, kmin)/kmin)
+    return(dp*p - dk*100*max(k, kmin)/kmin)
   }
 }
 
@@ -77,23 +130,25 @@ generateRandomNeighbour <- function(map) {
     # p_move > p_add > p_remove
     # map is needed to check if new position is inside the building
     los <- runif(1, 0, 1)
-    if (los < 0.8) {
+    inScope <- isInScope(dim(map)[1], dim(map)[2])
+    if (length(solution) != 0 && los < 0.95) {
       # move camera
-      cameraIter <- sample(1:lengths(solution), 1)
+      cameraIter <- sample(1:length(solution), 1)
       repeat {
-        Xpos <- solution[cameraIter][1]
+        Xpos <- solution[[cameraIter]][1]
         Xpos <- Xpos + sample(-1:1, 1)
-        Ypos <- solution[cameraIter][2]
+        Ypos <- solution[[cameraIter]][2]
         Ypos <- Ypos + sample(-1:1, 1)
-        if (!is.na(map[Xpos, Ypos])
+        if (inScope(Xpos, Ypos)
             && map[Xpos, Ypos] == 3
-            && !is.element(c(Xpos, Ypos), solution))
-          break;
+            && !is.element(c(Xpos, Ypos), solution)) {
+            solution[[cameraIter]][1] <- Xpos
+            solution[[cameraIter]][2] <- Ypos
+            break
+        }
       }
-      solution[cameraIter][1] <- tmpXpos
-      solution[cameraIter][2] <- tmpYpos
 
-    } else if (los < 0.95) {
+    } else if (length(solution) == 0 || los < 0.99) {
       # add camera
       Xdim <- dim(map)[1]
       Ydim <- dim(map)[2]
@@ -101,14 +156,16 @@ generateRandomNeighbour <- function(map) {
         Xpos <- sample(1:Xdim, 1)
         Ypos <- sample(1:Ydim, 1)
         if (map[Xpos, Ypos] == 3
-            && !is.element(c(Xpos, Ypos), solution))
-          break;
+            && !is.element(c(Xpos, Ypos), solution)) {
+            solution[[length(solution)+1]] <- c(Xpos, Ypos)
+          break
+        }
       }
 
     } else {
       # remove camera
-      cameraIter <- sample(1:lengths(solution), 1)
-      solution[cameraIter] <- NULL
+      cameraIter <- sample(1:length(solution), 1)
+      solution[[cameraIter]] <- NULL
     }
     return(solution)
   }
@@ -116,11 +173,11 @@ generateRandomNeighbour <- function(map) {
 
 # calculates temperature based on current iteration number
 # 300 is T0
-# 1000 is expected number of iterations
+# 2000 is expected number of iterations
 # look around for other functions than exp
 temperatureFunction <- function(param) {
   function(currentIteration) {
-    300 * exp(-currentIteration/1000)
+    300 * exp(-currentIteration/2000)
   }
 }
 
@@ -257,7 +314,7 @@ generateInitState <- function (map, camNum) {
 initGlobals <- function() {
   plotDataIter <<- c()
   plotDataGoal <<- c()
-  plotDataSolution <<- c()
+  #plotDataSolution <<- c()
 }
 
 # k - nr iteracji
@@ -266,7 +323,7 @@ initGlobals <- function() {
 consumeNewData <- function(k, x, q) {
   plotDataIter <<- c(plotDataIter, k)
   plotDataGoal <<- c(plotDataGoal, q)
-  plotDataSolution <<- c(plotDataSolution, x)
+  #plotDataSolution <<- c(plotDataSolution, x)
 }
 
 drawGraphs <- function() {
@@ -280,9 +337,10 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
   mapField <- countMapField(map)
   cameraRadius <- scale * cameraRadius
   cameraField <- pi * cameraRadius * cameraRadius
-  cameraNumber <- floor(mapField / cameraField)
+  cameraNumber <- ceiling(mapField / cameraField)
+  print(cameraNumber)
   anealling(function() {generateInitState(map, cameraNumber)},
-            temperatureFunction,
+            temperatureFunction(0),
             generateRandomNeighbour(map),
             keep_running,
             goalFunction(cameraNumber, 1, 1, function(x) {
@@ -297,4 +355,4 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
 samplePointsX <- c(1, 1, 3, 3, 5, 5, 4, 4, 8, 8, 10, 10)
 samplePointsY <- c(1, 7, 7, 10, 10, 6, 6, 3, 3, 9, 9, 1)
 
-main(samplePointsX, samplePointsY, 1, 1)
+main(samplePointsX, samplePointsY, 5, 3)
