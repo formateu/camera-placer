@@ -58,20 +58,6 @@ calculateCovering <- function(map, mapfield, radius, solution) {
 }
 
 
-# simple test
-
-sampleMap <- matrix( c(2,2,2,2,2,
-                       1,1,1,1,1,
-                       1,3,3,3,1,
-                       1,3,3,3,1,
-                       1,3,3,3,1,
-                       1,3,3,3,1,
-                       1,1,1,1,1), nrow = 7, ncol = 5, byrow=TRUE)
-
-print(calculateCovering(sampleMap, 12L, 1L, list(c(4L,3L))))
-print(sampleMap)
-print(dim(sampleMap))
-
 
 goalFunction <- function(kmin, dp, dk, coveringFunc) {
   function(x) {
@@ -84,10 +70,10 @@ goalFunction <- function(kmin, dp, dk, coveringFunc) {
 
 generateRandomNeighbour <- function(map) {
   function(solution) {
-# move one camera, add one camera or remove one camera randomly
-# make the probability of moving one camera significally higher than any other option
-# p_move > p_add > p_remove
-# map is needed to check if new position is inside the building
+    # move one camera, add one camera or remove one camera randomly
+    # make the probability of moving one camera significally higher than any other option
+    # p_move > p_add > p_remove
+    # map is needed to check if new position is inside the building
     los <- runif(1, 0, 1)
     if (los < 0.8) {
       # move camera
@@ -136,53 +122,53 @@ temperatureFunction <- function(param) {
   }
 }
 
-generateMap <- function(points, scale) {
-scaledPoints <- sapply(points, function(point) {
-    return(sapply(point, function(x){
-      return(x*scale)
-    }))
-  })
-  xPositions <- sapply(scaledPoints, function(point) {
-    return(point[1])
-  })
-  yPositions <- sapply(scaledPoints, function(point) {
-    return(point[2])
-  })
-  
+generateMap <- function(pointsX, pointsY, scale) {
+  xPositions <- sapply(pointsX, function(point) {
+                         point*scale
+            })
+  yPositions <- sapply(pointsY, function(point) {
+                         point*scale
+            })
+
   #for matrix creation and optimization of map size
-  minX <- which.min(xPositions)
-  minY <- which.min(yPositions)
-  maxX <- which.max(xPositions)
-  maxY <- which.max(yPositions)
-  
+  minX <- min(xPositions)
+  minY <- min(yPositions)
+  maxX <- max(xPositions)
+  maxY <- max(yPositions)
+
   map <- matrix(2L, nrow=maxX, ncol=maxY)
-  
-  for (point in scaledPoints) { map[point[1],point[2]] <- 1 }
-  
-  scaledPoints[[length(scaledPoints) + 1]] <- scaledPoints[1]
- 
-  for (index in 2:length(scaledPoints)) {
-    point2 <- scaledPoints[index]
-    point1 <- scaledPoints[index - 1]
-    
+
+  for (pos in 1:length(xPositions)) {
+    map[xPositions[pos], yPositions[pos]] <- 1
+  }
+
+  xPositions[[length(xPositions) + 1]] <- xPositions[1]
+  yPositions[[length(yPositions) + 1]] <- yPositions[1]
+
+  for (index in 2:length(xPositions)) {
+    point1 <- c(xPositions[index-1], yPositions[index-1])
+    point2 <- c(xPositions[index], yPositions[index])
+
     diffX <- point1[1] - point2[1]
     diffY <- point1[2] - point2[2]
-    
+
     if (diffX != 0) {
-        for (xPos in point1[1]:point2[1]) {
-          map[xPos, point2[2]] <- 1
-        }
+      for (xPos in point1[1]:point2[1]) {
+        map[xPos, point2[2]] <- 1
+      }
     } else {
       for (yPos in point1[2]:point2[2]) {
-        map[yPos, point2[1]] <- 1
+        map[point2[1], yPos] <- 1
       }
     }
   }
-    
-  scaledPoints[length(scaledPoints)] <- NULL
+
+  xPositions <- head(xPositions, -1)
+  yPositions <- head(yPositions, -1)
+
   flag <- 0
   lastVal <- 4
-  
+
   for (y in 1:dim(map)[2]) {
     for (x in 1:dim(map)[1]) {
       if (flag == 1 && map[x,y] == 1) {
@@ -195,7 +181,36 @@ scaledPoints <- sapply(points, function(point) {
       }
       lastVal <- map[x,y]
     }
+    flag <- 0
+    lastVal <- 4
   }
-  
+
   return(map)
 }
+
+
+# simple test
+
+if (FALSE) {
+"
+sampleMap <- matrix( c(2,2,2,2,2,
+                       1,1,1,1,1,
+                       1,3,3,3,1,
+                       1,3,3,3,1,
+                       1,3,3,3,1,
+                       1,3,3,3,1,
+                       1,1,1,1,1), nrow = 7, ncol = 5, byrow=TRUE)
+
+print(calculateCovering(sampleMap, 12L, 1L, list(c(4L,3L))))
+print(sampleMap)
+print(dim(sampleMap))
+"
+}
+
+samplePointsX <- c(1,5,5,1)
+samplePointsY <- c(1,1,6,6)
+#sampleMap <- generateMap(samplePointsX, samplePointsY, 1)
+sampleMap2 <- generateMap(samplePointsX, samplePointsY, 2)
+
+#print(sampleMap)
+print(sampleMap2)
