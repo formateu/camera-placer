@@ -1,6 +1,6 @@
 # q - funkcja celu
-anealling <- function(initialPointGenerator, calculateTemperature
-                      , selectRandomNeighbour, runningFunc, q, consumerFunc) {
+anealling <- function(initialPointGenerator, calculateTemperature,
+                      selectRandomNeighbour, runningFunc, q, consumerFunc) {
   k <- 0
   x <- initialPointGenerator()
   while (runningFunc(k)) {
@@ -12,14 +12,14 @@ anealling <- function(initialPointGenerator, calculateTemperature
       x <- y
 
     # draws the point on the graph and constructs graph
-    consumerFunc(x, q(x))
+    consumerFunc(k, x, q(x))
 
     k <- k + 1
   }
 }
 
 
-keep_running <- function (k) {
+keep_running <- function(k) {
   k < 10000
 }
 
@@ -214,3 +214,24 @@ sampleMap2 <- generateMap(samplePointsX, samplePointsY, 2)
 
 #print(sampleMap)
 print(sampleMap2)
+
+
+initGlobals <- function() {
+  plotDataIter <<- c()
+  plotDataGoal <<- c()
+  plotDataSolution <<- c()
+}
+
+# k - nr iteracji
+# x - rozwiazanie
+# q - wartosc f celu dla rozwiazania
+consumeNewData <- function(k, x, q) {
+  plotDataIter <<- c(plotDataIter, k)
+  plotDataGoal <<- c(plotDataGoal, q)
+  plotDataSolution <<- c(plotDataSolution, x)
+}
+
+drawGraphs <- function() {
+  plot(plotDataIter, plotDataGoal, main="Wartosc f celu", type="l",
+       xlab="Nr iteracji", ylab="Funkcja celu")
+}
