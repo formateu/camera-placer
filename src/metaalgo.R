@@ -82,8 +82,6 @@ goalFunction <- function(kmin, dp, dk, coveringFunc) {
   }
 }
 
-
-
 generateRandomNeighbour <- function(map) {
   function(solution) {
 # move one camera, add one camera or remove one camera randomly
@@ -128,7 +126,6 @@ generateRandomNeighbour <- function(map) {
   }
 }
 
-
 # calculates temperature based on current iteration number
 # 300 is T0
 # 10000 is expected number of iterations
@@ -137,4 +134,68 @@ temperatureFunction <- function(param) {
   function(currentIteration) {
     300 * exp(-currentIteration/10000)
   }
+}
+
+generateMap <- function(points, scale) {
+scaledPoints <- sapply(points, function(point) {
+    return(sapply(point, function(x){
+      return(x*scale)
+    }))
+  })
+  xPositions <- sapply(scaledPoints, function(point) {
+    return(point[1])
+  })
+  yPositions <- sapply(scaledPoints, function(point) {
+    return(point[2])
+  })
+  
+  #for matrix creation and optimization of map size
+  minX <- which.min(xPositions)
+  minY <- which.min(yPositions)
+  maxX <- which.max(xPositions)
+  maxY <- which.max(yPositions)
+  
+  map <- matrix(2L, nrow=maxX, ncol=maxY)
+  
+  for (point in scaledPoints) { map[point[1],point[2]] <- 1 }
+  
+  scaledPoints[[length(scaledPoints) + 1]] <- scaledPoints[1]
+ 
+  for (index in 2:length(scaledPoints)) {
+    point2 <- scaledPoints[index]
+    point1 <- scaledPoints[index - 1]
+    
+    diffX <- point1[1] - point2[1]
+    diffY <- point1[2] - point2[2]
+    
+    if (diffX != 0) {
+        for (xPos in point1[1]:point2[1]) {
+          map[xPos, point2[2]] <- 1
+        }
+    } else {
+      for (yPos in point1[2]:point2[2]) {
+        map[yPos, point2[1]] <- 1
+      }
+    }
+  }
+    
+  scaledPoints[length(scaledPoints)] <- NULL
+  flag <- 0
+  lastVal <- 4
+  
+  for (y in 1:dim(map)[2]) {
+    for (x in 1:dim(map)[1]) {
+      if (flag == 1 && map[x,y] == 1) {
+        if (lastVal == 1) {}
+        else if (lastVal != 1) { flag <- 0 }
+      } else if (flag == 1 && map[x,y] != 1) {
+        map[x,y] <- 3
+      } else { #flag == 0
+        flag <- 1
+      }
+      lastVal <- map[x,y]
+    }
+  }
+  
+  return(map)
 }
