@@ -4,6 +4,7 @@ anealling <- function(initialPointGenerator, calculateTemperature,
   k <- 0
   x <- initialPointGenerator()
   while (runningFunc(k)) {
+    print(k)
     t <- calculateTemperature(k)
     y <- selectRandomNeighbour(x)
     if (q(y) > q(x))
@@ -20,7 +21,7 @@ anealling <- function(initialPointGenerator, calculateTemperature,
 
 
 keep_running <- function(k) {
-  k < 10000
+  k < 1000
 }
 
 
@@ -36,6 +37,7 @@ calculateCovering <- function(map, mapfield, radius, solution) {
 
   cameraFieldCount <- 0L
 
+  print(solution)
   for (camera in solution) {
     x <- camera[1]
     y <- camera[2]
@@ -114,11 +116,11 @@ generateRandomNeighbour <- function(map) {
 
 # calculates temperature based on current iteration number
 # 300 is T0
-# 10000 is expected number of iterations
+# 1000 is expected number of iterations
 # look around for other functions than exp
 temperatureFunction <- function(param) {
   function(currentIteration) {
-    300 * exp(-currentIteration/10000)
+    300 * exp(-currentIteration/1000)
   }
 }
 
@@ -188,13 +190,14 @@ generateMap <- function(pointsX, pointsY, scale) {
   return(map)
 }
 
-countMapField <- fuction(map) {
+countMapField <- function(map) {
   mapField <- 0
   for (y in 1:dim(map)[2]) {
     for (x in 1:dim(map)[1]) {
-      if (map[x,y] == 3) { counter <- counter +1 }
+      if (map[x,y] == 3) { mapField <- mapField +1 }
     }
   }
+  mapField
 }
 
 # simple test
@@ -251,20 +254,6 @@ generateInitState <- function (map, camNum) {
   return(result)
 }
 
-main <- function(xPoints, yPoints, scale, cameraRadius) {
-  initGlobals()
-  map <- generateMap(xPoints, yPoints, scale)
-  mapField <- countMapField(map)
-  cameraField <- pi * cameraRadius * cameraRadius
-  cameraNumber <- integer(mapField / cameraField)
-  anealling(generateInitState,
-            temperatureFunction,
-            generateRandomNeighbour,
-            keep_running,
-            goalFunction,
-            consumeNewData)
-}
-
 initGlobals <- function() {
   plotDataIter <<- c()
   plotDataGoal <<- c()
@@ -284,3 +273,28 @@ drawGraphs <- function() {
   plot(plotDataIter, plotDataGoal, main="Wartosc f celu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
 }
+
+main <- function(xPoints, yPoints, scale, cameraRadius) {
+  initGlobals()
+  map <- generateMap(xPoints, yPoints, scale)
+  mapField <- countMapField(map)
+  cameraRadius <- scale * cameraRadius
+  cameraField <- pi * cameraRadius * cameraRadius
+  cameraNumber <- floor(mapField / cameraField)
+  anealling(function() {generateInitState(map, cameraNumber)},
+            temperatureFunction,
+            generateRandomNeighbour(map),
+            keep_running,
+            goalFunction(cameraNumber, 1, 1, function(x) {
+                           calculateCovering(map,mapField, cameraRadius, x)
+                       }),
+            consumeNewData)
+  drawGraphs()
+}
+
+
+
+samplePointsX <- c(1, 1, 3, 3, 5, 5, 4, 4, 8, 8, 10, 10)
+samplePointsY <- c(1, 7, 7, 10, 10, 6, 6, 3, 3, 9, 9, 1)
+
+main(samplePointsX, samplePointsY, 1, 1)
