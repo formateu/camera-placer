@@ -188,6 +188,14 @@ generateMap <- function(pointsX, pointsY, scale) {
   return(map)
 }
 
+countMapField <- fuction(map) {
+  mapField <- 0
+  for (y in 1:dim(map)[2]) {
+    for (x in 1:dim(map)[1]) {
+      if (map[x,y] == 3) { counter <- counter +1 }
+    }
+  }
+}
 
 # simple test
 
@@ -243,6 +251,19 @@ generateInitState <- function (map, camNum) {
   return(result)
 }
 
+main <- function(xPoints, yPoints, scale, cameraRadius) {
+  initGlobals()
+  map <- generateMap(xPoints, yPoints, scale)
+  mapField <- countMapField(map)
+  cameraField <- pi * cameraRadius * cameraRadius
+  cameraNumber <- integer(mapField / cameraField)
+  anealling(generateInitState,
+            temperatureFunction,
+            generateRandomNeighbour,
+            keep_running,
+            goalFunction,
+            consumeNewData)
+}
 
 initGlobals <- function() {
   plotDataIter <<- c()
