@@ -121,15 +121,43 @@ calculateCovering <- function(map, mapfield, radius, solution) {
 
   cameraFieldCount <- 0L
 
-  inScope <- isInScope(dim(map)[1], dim(map)[2])
+  dimX <- dim(map)[1]
+  dimY <- dim(map)[2]
 
   for (camera in solution) {
     x <- camera[1]
     y <- camera[2]
 
+    if (x-radius > 0 && x+radius <= dimX &&
+        y-radius > 0 && y+radius <= dimY) {
+      inScope <- function(a, b) { TRUE }
+    } else {
+      inScope <- isInScope(dimX, dimY)
+    }
+
     # improved brute force filled circle drawing
-    for (y1 in 0:radius) {
-      for (x1 in 0:radius) {
+    for (delta in 0:radius) {
+      if (inScope(x, y+delta) && map[x, y+delta] == 3) {
+        map[x, y+delta] <- 4
+        cameraFieldCount <- cameraFieldCount + 1
+      }
+      if (inScope(x, y-delta) && map[x, y-delta] == 3) {
+        map[x, y-delta] <- 4
+        cameraFieldCount <- cameraFieldCount + 1
+      }
+
+      if (inScope(x+delta, y) && map[x+delta, y] == 3) {
+        map[x+delta, y] <- 4
+        cameraFieldCount <- cameraFieldCount + 1
+      }
+      if (inScope(x-delta, y) && map[x-delta, y] == 3) {
+        map[x-delta, y] <- 4
+        cameraFieldCount <- cameraFieldCount + 1
+      }
+    }
+
+    for (y1 in 1:radius) {
+      for (x1 in 1:radius) {
         if (x1*x1+y1*y1 <= radius*radius) { # check field is in camera's range
              #inScope(x+x1, y+y1) # check if location in scope
              #map[x+x1,y+y1] == 3) { # check if field can be colored
