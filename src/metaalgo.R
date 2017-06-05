@@ -53,10 +53,10 @@ compareLists <- function(l1, l2) {
 
 # q - funkcja celu
 anealling <- function(initialPointGenerator, calculateTemperature,
-                      selectRandomNeighbour, runningFunc, q, consumerFunc) {
+                      selectRandomNeighbour, runningFunc, q, consumerFunc, tabooSize) {
   k <- 0
   x <- initialPointGenerator()
-  taboo <- Buffer(5)
+  taboo <- Buffer(tabooSize)
   while (runningFunc(k)) {
     #print(k)
 
@@ -363,6 +363,7 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
   temperatureFuncFactor <- 0.5
   dp <- 1
   dk <- 1
+  tabooSize <- 5
   initGlobals()
   map <- generateMap(xPoints, yPoints, scale)
   mapField <- countMapField(map)
@@ -376,6 +377,7 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
             goalFunction(cameraNumber, dp, dk, function(x) {
                            calculateCovering(map, mapField, cameraRadius, x)
                        }),
-            consumeNewData)
+            consumeNewData,
+            tabooSize)
   drawGraphs()
 }
