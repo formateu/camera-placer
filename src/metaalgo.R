@@ -355,7 +355,6 @@ drawGraphs <- function() {
        xlab="Nr iteracji", ylab="Funkcja celu")
   plot(plotDataIter, plotDataGoalGenerated, main="Wartość funkcji celu wygenerowanego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
-  dev.off()
 }
 
 main <- function(xPoints, yPoints, scale, cameraRadius) {
