@@ -15,6 +15,7 @@ Buffer <- function(inSize) {
             size <<- size + 1
         }
     }
+
     pop <- function() {
         if (size >= 0) {
             elem <- head(queue)
@@ -33,6 +34,7 @@ Buffer <- function(inSize) {
         FALSE
     }
 
+    #for test purposes
     printBuf <- function() { print(queue) }
 
     environment()
@@ -54,13 +56,17 @@ anealling <- function(initialPointGenerator, calculateTemperature,
                       selectRandomNeighbour, runningFunc, q, consumerFunc) {
   k <- 0
   x <- initialPointGenerator()
-  #log <- PriorityQueue()
-  #log$insertUnique(q(x), x)
+  taboo <- Buffer(5)
   while (runningFunc(k)) {
     #print(k)
 
     t <- calculateTemperature(k)
-    y <- selectRandomNeighbour(x)
+    repeat {
+        y <- selectRandomNeighbour(x)
+
+        if (!taboo$find(y)) { break }
+    }
+
 
     # for optimization
     goalX <- q(x)
@@ -73,6 +79,8 @@ anealling <- function(initialPointGenerator, calculateTemperature,
       x <- y
     else if (runif(1, 0, 1) < exp(-abs((goalY-goalX)/t)))
       x <- y
+
+    taboo$push(x)
 
     k <- k + 1
   }
