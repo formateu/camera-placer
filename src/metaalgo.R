@@ -73,8 +73,10 @@ anealling <- function(initialPointGenerator, calculateTemperature,
 }
 
 
-keep_running <- function(k) {
-  k < 5000
+keep_running <- function(numberofiters) {
+  function(k) {
+    k < numberofiters
+  }
 }
 
 isInScope <- function(xmax, ymax) {
@@ -104,9 +106,9 @@ calculateCovering <- function(map, mapfield, radius, solution) {
     # brute force filled circle drawing
     for (y1 in -radius:radius) {
       for (x1 in -radius:radius) {
-        if (inScope(x+x1, y+y1) # check if location in scope
-            && map[x+x1,y+y1] == 3 # check if field can be colored
-            && x1*x1+y1*y1 <= radius*radius) { # check field is in camera's range
+        if (x1*x1+y1*y1 <= radius*radius # check field is in camera's range
+            && inScope(x+x1, y+y1) # check if location in scope
+            && map[x+x1,y+y1] == 3) { # check if field can be colored
           map[x+x1,y+y1] <- 4
           cameraFieldCount <- cameraFieldCount + 1
         }
@@ -130,14 +132,14 @@ goalFunction <- function(kmin, dp, dk, coveringFunc) {
 }
 
 generateRandomNeighbour <- function(map) {
+  inScope <- isInScope(dim(map)[1], dim(map)[2])
   function(solution) {
     # move one camera, add one camera or remove one camera randomly
     # make the probability of moving one camera significally higher than any other option
     # p_move > p_add > p_remove
     # map is needed to check if new position is inside the building
     los <- runif(1, 0, 1)
-    inScope <- isInScope(dim(map)[1], dim(map)[2])
-    if (length(solution) != 0 && los < 0.9985) {
+    if (length(solution) != 0 && los < 0.998) {
       # move camera
       cameraIter <- sample(1:length(solution), 1)
       repeat {
@@ -178,12 +180,10 @@ generateRandomNeighbour <- function(map) {
 }
 
 # calculates temperature based on current iteration number
-# 300 is T0
-# 5000 is expected number of iterations
 # look around for other functions than exp
-temperatureFunction <- function(param) {
+temperatureFunction <- function(param, expectedIters) {
   function(currentIteration) {
-    exp(-currentIteration/5000)
+    param * exp(-currentIteration/expectedIters)
   }
 }
 
@@ -345,17 +345,21 @@ drawGraphs <- function() {
 }
 
 main <- function(xPoints, yPoints, scale, cameraRadius) {
+  iternums <- 5000
+  temperatureFuncFactor <- 0.5
+  dp <- 1
+  dk <- 1
   initGlobals()
   map <- generateMap(xPoints, yPoints, scale)
   mapField <- countMapField(map)
   cameraRadius <- scale * cameraRadius
   cameraField <- pi * cameraRadius * cameraRadius
   cameraNumber <- ceiling(mapField / cameraField)
-  anealling(function() {generateInitState(map, cameraNumber)},
-            temperatureFunction(0),
+  anealling(function() { generateInitState(map, cameraNumber) },
+            temperatureFunction(temperatureFuncFactor, iternums),
             generateRandomNeighbour(map),
-            keep_running,
-            goalFunction(cameraNumber, 1, 1, function(x) {
+            keep_running(iternums),
+            goalFunction(cameraNumber, dp, dk, function(x) {
                            calculateCovering(map, mapField, cameraRadius, x)
                        }),
             consumeNewData)
