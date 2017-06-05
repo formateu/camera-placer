@@ -1,35 +1,41 @@
 require(compiler)
 enableJIT(3)
 
-PriorityQueue <- function() {
-  keys <- values <- NULL
-  curBest <- 0
+Buffer <- function(inSize) {
+    queue <- list()
+    maxSize <- inSize
+    size <- 0
 
-  top <- function() { values[[curBest]] }
-
-  insertUnique <- function(key, val) {
-    if (length(values) == 0) {
-      keys <<- list(key)
-      values <<- list(val)
-      curBest <<- 1
-    } else {
-      flag <- TRUE
-      for (elem in values) {
-        if (compareLists(elem, val)) {
-          flag <- FALSE
-          break
+    push <- function(elem) {
+        if (size == maxSize) {
+            queue <<- tail(queue, -1)
+            queue <<- c(queue, list(elem))
+        } else if (size < maxSize) {
+            queue[[size + 1]] <<- elem
+            size <<- size + 1
         }
-      }
-      if (flag) {
-        values[[length(values)+1]] <<- val
-        keys[[length(keys)+1]] <<- key
-        if (key > keys[[curBest]]) {
-          curBest <<- length(keys)
-        }
-      }
     }
-  }
-  environment()
+    pop <- function() {
+        if (size >= 0) {
+            elem <- head(queue)
+            queue <<- tail(queue, -1)
+            size <<- size - 1
+            elem
+        }
+    }
+
+    find <- function(elem) {
+        for (solution in queue) {
+            if (compareLists(elem, solution) == TRUE) {
+                TRUE
+            }
+        }
+        FALSE
+    }
+
+    printBuf <- function() { print(queue) }
+
+    environment()
 }
 
 compareLists <- function(l1, l2) {
@@ -48,7 +54,7 @@ anealling <- function(initialPointGenerator, calculateTemperature,
                       selectRandomNeighbour, runningFunc, q, consumerFunc) {
   k <- 0
   x <- initialPointGenerator()
-  log <- PriorityQueue()
+  #log <- PriorityQueue()
   #log$insertUnique(q(x), x)
   while (runningFunc(k)) {
     #print(k)
@@ -365,10 +371,3 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
             consumeNewData)
   drawGraphs()
 }
-
-
-
-samplePointsX <- c(1, 1, 3, 3, 5, 5, 4, 4, 8, 8, 10, 10)
-samplePointsY <- c(1, 7, 7, 10, 10, 6, 6, 3, 3, 9, 9, 1)
-
-main(samplePointsX, samplePointsY, 5, 2)
