@@ -74,7 +74,7 @@ anealling <- function(initialPointGenerator, calculateTemperature,
 
 
 keep_running <- function(k) {
-  k < 2000
+  k < 5000
 }
 
 isInScope <- function(xmax, ymax) {
@@ -179,11 +179,11 @@ generateRandomNeighbour <- function(map) {
 
 # calculates temperature based on current iteration number
 # 300 is T0
-# 2000 is expected number of iterations
+# 5000 is expected number of iterations
 # look around for other functions than exp
 temperatureFunction <- function(param) {
   function(currentIteration) {
-    300 * exp(-currentIteration/2000)
+    exp(-currentIteration/5000)
   }
 }
 
@@ -337,9 +337,9 @@ consumeNewData <- function(k, x, qx, qy) {
 drawGraphs <- function() {
   jpeg('plot.jpg')
   par(mfrow=c(2,1))
-  plot(plotDataIter, plotDataGoal, main="Wartosc funkcji celu aktualnie wybranego punktu", type="l",
+  plot(plotDataIter, plotDataGoal, main="Wartość funkcji celu aktualnie wybranego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
-  plot(plotDataIter, plotDataGoalGenerated, main="Wartosc funkcji celu wygenerowanego punktu", type="l",
+  plot(plotDataIter, plotDataGoalGenerated, main="Wartość funkcji celu wygenerowanego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
   dev.off()
 }
@@ -355,7 +355,7 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
             temperatureFunction(0),
             generateRandomNeighbour(map),
             keep_running,
-            goalFunction(cameraNumber, 1, 0.5, function(x) {
+            goalFunction(cameraNumber, 1, 1, function(x) {
                            calculateCovering(map, mapField, cameraRadius, x)
                        }),
             consumeNewData)
