@@ -58,7 +58,7 @@ compareLists <- function(l1, l2) {
   FALSE
 }
 
-# q - funkcja celu
+# q - goal function
 anealling <- function(initialPointGenerator, calculateTemperature,
                       selectRandomNeighbour, runningFunc, q,
                       consumerFunc, tabooSize) {
@@ -66,7 +66,6 @@ anealling <- function(initialPointGenerator, calculateTemperature,
   x <- initialPointGenerator()
   taboo <- Buffer(tabooSize)
   while (runningFunc(k)) {
-    #print(k)
 
     t <- calculateTemperature(k)
 
@@ -128,14 +127,29 @@ calculateCovering <- function(map, mapfield, radius, solution) {
     x <- camera[1]
     y <- camera[2]
 
-    # brute force filled circle drawing
-    for (y1 in -radius:radius) {
-      for (x1 in -radius:radius) {
-        if (x1*x1+y1*y1 <= radius*radius # check field is in camera's range
-            && inScope(x+x1, y+y1) # check if location in scope
-            && map[x+x1,y+y1] == 3) { # check if field can be colored
-          map[x+x1,y+y1] <- 4
-          cameraFieldCount <- cameraFieldCount + 1
+    # improved brute force filled circle drawing
+    for (y1 in 0:radius) {
+      for (x1 in 0:radius) {
+        if (x1*x1+y1*y1 <= radius*radius) { # check field is in camera's range
+             #inScope(x+x1, y+y1) # check if location in scope
+             #map[x+x1,y+y1] == 3) { # check if field can be colored
+          if (inScope(x+x1, y+y1) && map[x+x1, y+y1] == 3) {
+              map[x+x1,y+y1] <- 4
+              cameraFieldCount <- cameraFieldCount + 1
+          }
+          if (inScope(x-x1, y+y1) && map[x-x1, y+y1] == 3) {
+              map[x-x1,y+y1] <- 4
+              cameraFieldCount <- cameraFieldCount + 1
+          }
+
+          if (inScope(x+x1, y-y1) && map[x+x1, y-y1] == 3) {
+              map[x+x1,y-y1] <- 4
+              cameraFieldCount <- cameraFieldCount + 1
+          }
+          if (inScope(x-x1, y-y1) && map[x-x1, y-y1] == 3) {
+              map[x-x1,y-y1] <- 4
+              cameraFieldCount <- cameraFieldCount + 1
+          }
         }
       }
     }
