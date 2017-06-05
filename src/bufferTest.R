@@ -1,3 +1,6 @@
+#Project : Camera Placer
+#Authors : Przemyslaw Kopanski
+#          Mateusz Forc
 source("metaalgo.R")
 
 solution <- list()

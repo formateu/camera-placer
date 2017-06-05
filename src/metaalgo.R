@@ -1,48 +1,55 @@
+#Project : Camera Placer
+#Authors : Przemyslaw Kopanski
+#          Mateusz Forc
 require(compiler)
 enableJIT(3)
 
+#Simple FIFO Buffer implementation
+#for Tabooisation
 Buffer <- function(inSize) {
-    queue <- list()
-    maxSize <- inSize
-    size <- 0
+  queue <- list()
+  maxSize <- inSize
+  size <- 0
 
-    push <- function(elem) {
-        if (size == maxSize) {
-            queue <<- tail(queue, -1)
-            queue <<- c(queue, list(elem))
-        } else if (size < maxSize) {
-            queue[[size + 1]] <<- elem
-            size <<- size + 1
-        }
+  push <- function(elem) {
+    if (size == maxSize) {
+      queue <<- tail(queue, -1)
+      queue <<- c(queue, list(elem))
+    } else if (size < maxSize) {
+      queue[[size + 1]] <<- elem
+      size <<- size + 1
     }
+  }
 
-    pop <- function() {
-        if (size >= 0) {
-            elem <- head(queue)
-            queue <<- tail(queue, -1)
-            size <<- size - 1
-            elem
-        }
+  pop <- function() {
+    if (size >= 0) {
+      elem <- head(queue)
+      queue <<- tail(queue, -1)
+      size <<- size - 1
+      elem
     }
+  }
 
-    find <- function(elem) {
-        for (solution in queue) {
-            if (compareLists(elem, solution) == TRUE) {
-                TRUE
-            }
-        }
-        FALSE
+  find <- function(elem) {
+    for (solution in queue) {
+      if (compareLists(elem, solution) == TRUE) {
+        TRUE
+      }
     }
+    FALSE
+  }
 
-    #for test purposes
-    printBuf <- function() { print(queue) }
+  #for test purposes
+  printBuf <- function() { print(queue) }
 
-    environment()
+  environment()
 }
 
+#custom function that compares solutions (lists)
 compareLists <- function(l1, l2) {
   lengthsComparison <- length(l1) == length(l2)
   intersectNum <- length(intersect(l1, l2))
+
   if (length(l1) == length(l2)) {
     if (intersectNum == length(l1)) {
       TRUE
@@ -53,7 +60,8 @@ compareLists <- function(l1, l2) {
 
 # q - funkcja celu
 anealling <- function(initialPointGenerator, calculateTemperature,
-                      selectRandomNeighbour, runningFunc, q, consumerFunc, tabooSize) {
+                      selectRandomNeighbour, runningFunc, q,
+                      consumerFunc, tabooSize) {
   k <- 0
   x <- initialPointGenerator()
   taboo <- Buffer(tabooSize)
@@ -61,12 +69,14 @@ anealling <- function(initialPointGenerator, calculateTemperature,
     #print(k)
 
     t <- calculateTemperature(k)
+
+    #select random neighbour
+    #that is not in taboo
     repeat {
-        y <- selectRandomNeighbour(x)
+      y <- selectRandomNeighbour(x)
 
-        if (!taboo$find(y)) { break }
+      if (!taboo$find(y)) { break }
     }
-
 
     # for optimization
     goalX <- q(x)
@@ -80,6 +90,7 @@ anealling <- function(initialPointGenerator, calculateTemperature,
     else if (runif(1, 0, 1) < exp(-abs((goalY-goalX)/t)))
       x <- y
 
+    #add best to taboo
     taboo$push(x)
 
     k <- k + 1
@@ -134,8 +145,6 @@ calculateCovering <- function(map, mapfield, radius, solution) {
 
 }
 
-
-
 goalFunction <- function(kmin, dp, dk, coveringFunc) {
   function(x) {
     k <- length(x)
@@ -149,7 +158,8 @@ generateRandomNeighbour <- function(map) {
   inScope <- isInScope(dim(map)[1], dim(map)[2])
   function(solution) {
     # move one camera, add one camera or remove one camera randomly
-    # make the probability of moving one camera significally higher than any other option
+    # make the probability of moving one camera significally higher
+    # than any other option
     # p_move > p_add > p_remove
     # map is needed to check if new position is inside the building
     los <- runif(1, 0, 1)
@@ -164,9 +174,9 @@ generateRandomNeighbour <- function(map) {
         if (inScope(Xpos, Ypos)
             && map[Xpos, Ypos] == 3
             && !is.element(c(Xpos, Ypos), solution)) {
-            solution[[cameraIter]][1] <- Xpos
-            solution[[cameraIter]][2] <- Ypos
-            break
+          solution[[cameraIter]][1] <- Xpos
+          solution[[cameraIter]][2] <- Ypos
+          break
         }
       }
 
@@ -179,7 +189,7 @@ generateRandomNeighbour <- function(map) {
         Ypos <- sample(1:Ydim, 1)
         if (map[Xpos, Ypos] == 3
             && !is.element(c(Xpos, Ypos), solution)) {
-            solution[[length(solution)+1]] <- c(Xpos, Ypos)
+          solution[[length(solution)+1]] <- c(Xpos, Ypos)
           break
         }
       }
@@ -202,12 +212,8 @@ temperatureFunction <- function(param, expectedIters) {
 }
 
 generateMap <- function(pointsX, pointsY, scale) {
-  xPositions <- sapply(pointsX, function(point) {
-                         point*scale
-            })
-  yPositions <- sapply(pointsY, function(point) {
-                         point*scale
-            })
+  xPositions <- sapply(pointsX, function(point) { point*scale })
+  yPositions <- sapply(pointsY, function(point) { point*scale })
 
   #for matrix creation and optimization of map size
   minX <- min(xPositions)
@@ -255,11 +261,12 @@ generateMap <- function(pointsX, pointsY, scale) {
         else if (lastVal != 1) { flag <- 0 }
       } else if (flag == 1 && map[x,y] != 1) {
         map[x,y] <- 3
-      } else if (map[x,y] == 1){ #flag == 0
+      } else if (map[x,y] == 1) { #flag == 0
         flag <- 1
       }
       lastVal <- map[x,y]
     }
+
     flag <- 0
     lastVal <- 4
   }
@@ -269,40 +276,21 @@ generateMap <- function(pointsX, pointsY, scale) {
 
 countMapField <- function(map) {
   mapField <- 0
+
   for (y in 1:dim(map)[2]) {
     for (x in 1:dim(map)[1]) {
       if (map[x,y] == 3) { mapField <- mapField +1 }
     }
   }
+
   mapField
 }
 
-# simple test
-
-if (FALSE) {
-"
-sampleMap <- matrix( c(2,2,2,2,2,
-                       1,1,1,1,1,
-                       1,3,3,3,1,
-                       1,3,3,3,1,
-                       1,3,3,3,1,
-                       1,3,3,3,1,
-                       1,1,1,1,1), nrow = 7, ncol = 5, byrow=TRUE)
-
-print(calculateCovering(sampleMap, 12L, 1L, list(c(4L,3L))))
-print(sampleMap)
-print(dim(sampleMap))
-"
-}
-
 generateInitState <- function (map, camNum) {
-  if (FALSE) {
-    "
-    generates vector of initial camera positions
-    for given map and camera number
-    in allowed space (inside stage)
-    "
-  }
+  #generates vector of initial camera positions
+  #for given map and camera number
+  #in allowed space (inside stage)
+
   result <- list()
   dimX <- dim(map)[1]
   dimY <- dim(map)[2]
@@ -351,9 +339,11 @@ consumeNewData <- function(k, x, qx, qy) {
 drawGraphs <- function() {
   jpeg('plot.jpg')
   par(mfrow=c(2,1))
-  plot(plotDataIter, plotDataGoal, main="Wartość funkcji celu aktualnie wybranego punktu", type="l",
+  plot(plotDataIter, plotDataGoal,
+       main="Wartość funkcji celu aktualnie wybranego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
-  plot(plotDataIter, plotDataGoalGenerated, main="Wartość funkcji celu wygenerowanego punktu", type="l",
+  plot(plotDataIter, plotDataGoalGenerated,
+       main="Wartość funkcji celu wygenerowanego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
 }
 
@@ -375,7 +365,7 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
             keep_running(iternums),
             goalFunction(cameraNumber, dp, dk, function(x) {
                            calculateCovering(map, mapField, cameraRadius, x)
-                       }),
+            }),
             consumeNewData,
             tabooSize)
   drawGraphs()

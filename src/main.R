@@ -1,3 +1,6 @@
+#Project : Camera Placer
+#Authors : Przemyslaw Kopanski
+#          Mateusz Forc
 source("metaalgo.R")
 
 samplePointsX <- c(1, 1, 3, 3, 5, 5, 4, 4, 8, 8, 10, 10)
