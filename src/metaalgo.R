@@ -378,8 +378,10 @@ consumeNewData <- function(k, x, qx, qy) {
   plotDataGoalGenerated <<- c(plotDataGoalGenerated, qy)
 }
 
-drawGraphs <- function() {
-  jpeg('plot.jpg')
+drawGraphs <- function(fileName) {
+  jpg <- ".jpg"
+  fileName <- paste(fileName, jpg, sep = "")
+  jpeg(fileName)
   par(mfrow=c(2,1))
   plot(plotDataIter, plotDataGoal,
        main="Wartość funkcji celu aktualnie wybranego punktu", type="l",
@@ -389,7 +391,7 @@ drawGraphs <- function() {
        xlab="Nr iteracji", ylab="Funkcja celu")
 }
 
-main <- function(xPoints, yPoints, scale, cameraRadius) {
+main <- function(xPoints, yPoints, scale, cameraRadius, graphName) {
   iternums <- 5000
   temperatureFuncFactor <- 0.5
   dp <- 1
@@ -410,5 +412,5 @@ main <- function(xPoints, yPoints, scale, cameraRadius) {
             }),
             consumeNewData,
             tabooSize)
-  drawGraphs()
+  drawGraphs(graphName)
 }
