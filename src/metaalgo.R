@@ -61,7 +61,7 @@ compareLists <- function(l1, l2) {
 # q - goal function
 anealling <- function(initialPointGenerator, calculateTemperature,
                       selectRandomNeighbour, runningFunc, q,
-                      consumerFunc, tabooSize) {
+                      coveringFunc, consumerFunc, tabooSize) {
   k <- 0
   x <- initialPointGenerator()
   taboo <- Buffer(tabooSize)
@@ -77,12 +77,13 @@ anealling <- function(initialPointGenerator, calculateTemperature,
       if (!taboo$find(y)) { break }
     }
 
+
     # for optimization
     goalX <- q(x)
     goalY <- q(y)
 
     # draws the point on the graph and constructs graph
-    consumerFunc(k, x, goalX, goalY)
+    consumerFunc(k, goalX, goalY, length(x), 100*coveringFunc(x))
 
     if (goalY > goalX)
       x <- y
@@ -205,7 +206,7 @@ generateRandomNeighbour <- function(map) {
     # p_move > p_add > p_remove
     # map is needed to check if new position is inside the building
     los <- runif(1, 0, 1)
-    if (length(solution) != 0 && los < 0.998) {
+    if (length(solution) != 0 && los < 0.80) {
       # move camera
       cameraIter <- sample(1:length(solution), 1)
       repeat {
@@ -222,7 +223,7 @@ generateRandomNeighbour <- function(map) {
         }
       }
 
-    } else if (length(solution) == 0 || los < 0.9995) {
+    } else if (length(solution) == 0 || los < 0.96) {
       # add camera
       Xdim <- dim(map)[1]
       Ydim <- dim(map)[2]
@@ -235,7 +236,6 @@ generateRandomNeighbour <- function(map) {
           break
         }
       }
-
     } else {
       # remove camera
       cameraIter <- sample(1:length(solution), 1)
@@ -365,36 +365,40 @@ initGlobals <- function() {
   plotDataIter <<- c()
   plotDataGoal <<- c()
   plotDataGoalGenerated <<- c()
-  plotDataSolution <<- c()
+  plotDataCameraNum <<- c()
+  plotDataCoveragePercent <<- c()
 }
 
 # k - nr iteracji
 # x - rozwiazanie
 # q - wartosc f celu dla rozwiazania
-consumeNewData <- function(k, x, qx, qy) {
+consumeNewData <- function(k, qx, qy, cams, cover) {
   plotDataIter <<- c(plotDataIter, k)
-  #plotDataSolution <<- c(plotDataSolution, x)
   plotDataGoal <<- c(plotDataGoal, qx)
   plotDataGoalGenerated <<- c(plotDataGoalGenerated, qy)
+  plotDataCameraNum <<- c(cams, plotDataCameraNum)
+  plotDataCoveragePercent <<- c(cover, plotDataCoveragePercent)
 }
 
 drawGraphs <- function(fileName) {
-  jpg <- ".jpg"
-  fileName <- paste(fileName, jpg, sep = "")
-  jpeg(fileName)
-  par(mfrow=c(2,1))
+  fileName <- paste(fileName, ".png", sep = "")
+  png(fileName)
+  par(mfrow=c(3,1))
   plot(plotDataIter, plotDataGoal,
        main="Wartość funkcji celu aktualnie wybranego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
   plot(plotDataIter, plotDataGoalGenerated,
        main="Wartość funkcji celu wygenerowanego punktu", type="l",
        xlab="Nr iteracji", ylab="Funkcja celu")
+  plot(plotDataCoveragePercent, plotDataCameraNum,
+       main="Ilość użytych w rozwiązaniu kamer a procent pokrycia", type="p", pch=1,
+       xlab="% pokrycia", ylab="Liczba kamer")
 }
 
 main <- function(xPoints, yPoints, scale, cameraRadius, dp, dk, graphName) {
-  iternums <- 5000
-  temperatureFuncFactor <- 0.5
-  tabooSize <- 5
+  iternums <- 10000
+  temperatureFuncFactor <- 1
+  tabooSize <- 10
   initGlobals()
   map <- generateMap(xPoints, yPoints, scale)
   mapField <- countMapField(map)
@@ -408,6 +412,7 @@ main <- function(xPoints, yPoints, scale, cameraRadius, dp, dk, graphName) {
             goalFunction(cameraNumber, dp, dk, function(x) {
                            calculateCovering(map, mapField, cameraRadius, x)
             }),
+            function(x) { calculateCovering(map, mapField, cameraRadius, x) },
             consumeNewData,
             tabooSize)
   drawGraphs(graphName)
