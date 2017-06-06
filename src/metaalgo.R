@@ -391,11 +391,9 @@ drawGraphs <- function(fileName) {
        xlab="Nr iteracji", ylab="Funkcja celu")
 }
 
-main <- function(xPoints, yPoints, scale, cameraRadius, graphName) {
+main <- function(xPoints, yPoints, scale, cameraRadius, dp, dk, graphName) {
   iternums <- 5000
   temperatureFuncFactor <- 0.5
-  dp <- 1
-  dk <- 1
   tabooSize <- 5
   initGlobals()
   map <- generateMap(xPoints, yPoints, scale)
