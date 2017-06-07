@@ -393,10 +393,11 @@ drawGraphs <- function(fileName) {
   plot(plotDataCoveragePercent, plotDataCameraNum,
        main="Ilość użytych w rozwiązaniu kamer a procent pokrycia", type="p", pch=1,
        xlab="% pokrycia", ylab="Liczba kamer")
+  dev.off()
 }
 
 main <- function(xPoints, yPoints, scale, cameraRadius, dp, dk, graphName) {
-  iternums <- 10000
+  iternums <- 15000
   temperatureFuncFactor <- 1
   tabooSize <- 10
   initGlobals()
