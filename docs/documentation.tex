@@ -12,6 +12,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{floatrow}
+\usepackage{float}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
 \title{Rozmieszczanie kamer bezpieczeństwa}
@@ -216,14 +217,14 @@ bazowego i jego wygenerowanego sąsiada, a $t$ - aktualna temperatura. \\ \\
 W przypadku niższych wartości $d_p$ i $d_k$, podana funkcja dla danego $t$
 osiąga wartości bliskie jedności. \\
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{floatrow}
        \ffigbox[\FBwidth]{\caption{MediumMap, \newline
-       $d_p=0.9$, $d_k=0.1$, $skala=5$}\label{fig-7}}{%
+       $d_p=0.9$, $d_k=0.1$, $skala=5$}\label{fig-9}}{%
          \includegraphics[width=0.5\textwidth]{{mediumMap_0.1_0.1_5}.png}
        }
        \ffigbox[\FBwidth]{\caption{SlimMap,
-       \newline $d_p=1$, $d_k=0.1$, $skala=5$}\label{fig-8}}{%
+       \newline $d_p=1$, $d_k=0.1$, $skala=5$}\label{fig-10}}{%
          \includegraphics[width=0.5\textwidth]{{slimMap_1_0.1_5}.png}
        }
        \end{floatrow}
@@ -234,18 +235,32 @@ Wynika to z faktu, że koszt dodania kamery jest bardzo mały
 (róznica wartości funkcji celu) a prawdopodobieństwo
 dodania nowej kamery jest dosyć duże. \\
 
+\begin{figure}[H]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap2,
+       $d_p=1.0$, $d_k=0.7$, $skala=5$}\label{fig-11}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap2_1_0.7_5}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{SlimMap,
+       $d_p=1$, $d_k=0.4$, $skala=5$}\label{fig-12}}{%
+         \includegraphics[width=0.5\textwidth]{{slimMap_1_0.4_5}.png}
+       }
+       \end{floatrow}
+\end{figure}
 Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy
 $dp=1$ $d_k=~0.7$.
 Dzięki temu, gdy kolejne wygenerowane rozwiązanie będzie zawierało
 dodatkową kamerę, istnieje większa szansa, że zostanie wybrane pomimo,
 że ta dodatkowa kamera mogłaby sie znajdować w nieoptymalnym
 dla niej miejscu w danej chwili.
+W przypadku mapy zawierającej większą ilość wąskich korytarzy preferewana
+jest niższa wartość parametru $d_k$.
 
 \newpage
 \subsubsection{Zmiana interfejsu użytkownia}
 Po przebadaniu zachowania algorytmu można zauważyć,
 że lepszym sposobem do strojenia algorytmu jest podanie
-wspóczynnika $d_p/d_k$ zamiast poszczególnych wartości. \\ 
+wspóczynnika $\frac{d_p}{d_k}$ zamiast poszczególnych wartości. \\ 
 Zapewniamy przez to uniknięcie nieintuicyjnej różnicy zachowań algorytmu
 jak w przypadku uruchomieniu z argumentami:
 \begin{center}
