@@ -12,6 +12,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{floatrow}
+\usepackage{float}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
 \title{Rozmieszczanie kamer bezpieczeństwa}
@@ -178,31 +179,40 @@ Na podstawie przeprowadzonych symulacji nie zauważyliśmy znaczącej różnicy 
 Dla bardzo małych wartości $d_p$ i $d_k$ odnotowaliśmy zachowanie bardzo zbliżone do błądzenia przypadkowaego.
 Wynika to z faktu, iż różnica pomiędzy kolejnymi rozwiązaniami jest niewielka, przez co istnieje duże prawdopodobieństwo wybrania punktu gorszego. Prawdopodobieństwo wybrania gorszego punktu wynosi
 $exp(\frac{-|q(x)-q(y)|}{t})$, gdzie $q(x), q(y)$ to wartości funkcji celu dla punktu bazowego i jego wygenerowanego sąsiada, a $t$ - aktualna temperatura. W przypadku niższych wartości $d_p$ i $d_k$, podana funkcja dla danego $t$ osiąga
-wartości bliskie jedności. 
-
-
-\begin{figure}[h]
+wartości bliskie jedności.
+\begin{figure}[H]
 \begin{floatrow}
-       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=0.9$, $d_k=0.1$, $skala=5$}\label{fig-7}}{%
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=0.9$, $d_k=0.1$, $skala=5$}\label{fig-9}}{%
          \includegraphics[width=0.5\textwidth]{{mediumMap_0.1_0.1_5}.png}
        }
-       \ffigbox[\FBwidth]{\caption{SlimMap, $d_p=1$, $d_k=0.1$, $skala=5$}\label{fig-8}}{%
+       \ffigbox[\FBwidth]{\caption{SlimMap, $d_p=1$, $d_k=0.1$, $skala=5$}\label{fig-10}}{%
          \includegraphics[width=0.5\textwidth]{{slimMap_1_0.1_5}.png}
        }
        \end{floatrow}
 \end{figure}
-
 Dla $d_p >> d_k$ dało sie zaobserwować częste dokładanie kamer. Wynika to z faktu, że koszt dodania kamery jest bardzo mały (róznica wartości funkcji celu) a prawdopodobieństwo dodania nowej kamery jest dosyć duże.
 
-Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy $dp=1$ $d_k=~0.7$.
+\begin{figure}[H]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap2, $d_p=1.0$, $d_k=0.7$, $skala=5$}\label{fig-11}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap2_1_0.7_5}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{SlimMap, $d_p=1$, $d_k=0.4$, $skala=5$}\label{fig-12}}{%
+         \includegraphics[width=0.5\textwidth]{{slimMap_1_0.4_5}.png}
+       }
+       \end{floatrow}
+\end{figure}
+Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy $dp=1, d_k\in \langle 0.4, 0.7 \rangle $.
 Dzięki temu, gdy kolejne wygenerowane rozwiązanie będzie zawierało dodatkową kamerę, istnieje większa szansa,
 że zostanie wybrane pomimo, że ta dodatkowa kamera mogłaby sie znajdować w nieoptymalnym dla niej miejscu w danej chwili.
+W przypadku mapy zawierającej większą ilość wąskich korytarzy preferewana jest niższa wartość parametru $d_k$.
+
 
 \newpage
 \subsubsection{Zmiana interfejsu użytkownia}
 Po przebadaniu zachowania algorytmu można zauważyć, że lepszym sposobem do strojenia algorytmu jest podanie
-wspóczynnika $d_p/d_k$ zamiast poszczególnych wartości. Zapewniamy przez to uniknięcie nieintuicyjnej
-różnicy zachowań algorytmu jak w przypadku uruchomieniu z argumentami $d_p=1 d_k=1$ a np. $d_p=0.5 d_k=0.5$.
+wspóczynnika $\frac{d_p}{d_k}$ zamiast poszczególnych wartości. Zapewniamy przez to uniknięcie nieintuicyjnej
+różnicy zachowań algorytmu jak w przypadku uruchomieniu z argumentami $d_p=1, d_k=1$ a np. $d_p=0.5, d_k=0.5$.
 
 \subsubsection{Zmiana reprezentacji problemu}
 W dalekiej fazie prac nad projektem, doszliśmy do wniosku, że jednym z czynników, które spowalniają przebieg symulacji jest nieoptymalna reprezentacja problemu.\\
