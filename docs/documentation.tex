@@ -237,16 +237,17 @@ dodania nowej kamery jest dosyć duże. \\
 
 \begin{figure}[H]
 \begin{floatrow}
-       \ffigbox[\FBwidth]{\caption{MediumMap2,
+       \ffigbox[\FBwidth]{\caption{MediumMap2, \newline
        $d_p=1.0$, $d_k=0.7$, $skala=5$}\label{fig-11}}{%
          \includegraphics[width=0.5\textwidth]{{mediumMap2_1_0.7_5}.png}
        }
-       \ffigbox[\FBwidth]{\caption{SlimMap,
+       \ffigbox[\FBwidth]{\caption{SlimMap, \newline
        $d_p=1$, $d_k=0.4$, $skala=5$}\label{fig-12}}{%
          \includegraphics[width=0.5\textwidth]{{slimMap_1_0.4_5}.png}
        }
        \end{floatrow}
 \end{figure}
+\newpage
 Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy
 $dp=1$ $d_k=~0.7$.
 Dzięki temu, gdy kolejne wygenerowane rozwiązanie będzie zawierało
@@ -255,8 +256,7 @@ dodatkową kamerę, istnieje większa szansa, że zostanie wybrane pomimo,
 dla niej miejscu w danej chwili.
 W przypadku mapy zawierającej większą ilość wąskich korytarzy preferewana
 jest niższa wartość parametru $d_k$.
-
-\newpage
+%
 \subsubsection{Zmiana interfejsu użytkownia}
 Po przebadaniu zachowania algorytmu można zauważyć,
 że lepszym sposobem do strojenia algorytmu jest podanie
@@ -268,8 +268,7 @@ jak w przypadku uruchomieniu z argumentami:
 a na przykład: \linebreak
 \[d_p = 0.5 d_k = 0.5\].
 \end{center}
-
-\newpage
+%
 \subsubsection{Zmiana reprezentacji problemu}
 W dalekiej fazie prac nad projektem, doszliśmy do wniosku,
 że jednym z czynników, które spowalniają przebieg symulacji jest nieoptymalna
