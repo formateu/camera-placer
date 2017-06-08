@@ -162,23 +162,47 @@ Na podstawie przeprowadzonych symulacji nie zauważyliśmy znaczącej różnicy 
        \end{floatrow}
 \end{figure}
 
+\newpage
 \subsubsection{Wpływ parametrów $d_p$ i $d_k$ na zachowanie algorytmu}
-%openspace 01 01, wstawic inne
+\begin{figure}[h]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{OpenSpace, $d_p=0.1$, $d_k=0.1$, $skala=5$}\label{fig-7}}{%
+         \includegraphics[width=0.5\textwidth]{{openSpace_0.1_0.1_5}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=0.2$, $d_k=0.2$, $skala=5$}\label{fig-8}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap_0.2_0.2_5}.png}
+       }
+       \end{floatrow}
+\end{figure}
 
 Dla bardzo małych wartości $d_p$ i $d_k$ odnotowaliśmy zachowanie bardzo zbliżone do błądzenia przypadkowaego.
-Wynika to z faktu, iż różnica pomiędzy kolejnymi rozwiązaniami jest niewielka, przez co istnieje duże prawdopodobieństwo wybrania punktu gorszego.
+Wynika to z faktu, iż różnica pomiędzy kolejnymi rozwiązaniami jest niewielka, przez co istnieje duże prawdopodobieństwo wybrania punktu gorszego. Prawdopodobieństwo wybrania gorszego punktu wynosi
+$exp(\frac{-|q(x)-q(y)|}{t})$, gdzie $q(x), q(y)$ to wartości funkcji celu dla punktu bazowego i jego wygenerowanego sąsiada, a $t$ - aktualna temperatura. W przypadku niższych wartości $d_p$ i $d_k$, podana funkcja dla danego $t$ osiąga
+wartości bliskie jedności. 
 
-%TODO EXP
 
-%Dokladanie duzej ilosci kamer dp << dk
-%mediumMap  02 08 i inne
+\begin{figure}[h]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=0.9$, $d_k=0.1$, $skala=5$}\label{fig-7}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap_0.1_0.1_5}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{SlimMap, $d_p=1$, $d_k=0.1$, $skala=5$}\label{fig-8}}{%
+         \includegraphics[width=0.5\textwidth]{{slimMap_1_0.1_5}.png}
+       }
+       \end{floatrow}
+\end{figure}
 
-Dla dp << dk dało sie zaobserwować częste dokładanie kamer. Wynika to z faktu, że koszt dodania kamery jest bardzo mały (róznica wartości funkcji celu) a prawdopodobieństwo dodania nowej kamery jest dosyć duże.
+Dla $d_p >> d_k$ dało sie zaobserwować częste dokładanie kamer. Wynika to z faktu, że koszt dodania kamery jest bardzo mały (róznica wartości funkcji celu) a prawdopodobieństwo dodania nowej kamery jest dosyć duże.
 
-Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy $d_k=~0.7$ $dp=1$.
+Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy $dp=1$ $d_k=~0.7$.
 Dzięki temu, gdy kolejne wygenerowane rozwiązanie będzie zawierało dodatkową kamerę, istnieje większa szansa,
 że zostanie wybrane pomimo, że ta dodatkowa kamera mogłaby sie znajdować w nieoptymalnym dla niej miejscu w danej chwili.
-%TODO proporcje dla usera a nie wartosci parametrow
+
+\newpage
+\subsubsection{Zmiana interfejsu użytkownia}
+Po przebadaniu zachowania algorytmu można zauważyć, że lepszym sposobem do strojenia algorytmu jest podanie
+wspóczynnika $d_p/d_k$ zamiast poszczególnych wartości. Zapewniamy przez to uniknięcie nieintuicyjnej
+różnicy zachowań algorytmu jak w przypadku uruchomieniu z argumentami $d_p=1 d_k=1$ a np. $d_p=0.5 d_k=0.5$.
 
 \subsubsection{Zmiana reprezentacji problemu}
 W dalekiej fazie prac nad projektem, doszliśmy do wniosku, że jednym z czynników, które spowalniają przebieg symulacji jest nieoptymalna reprezentacja problemu.\\
