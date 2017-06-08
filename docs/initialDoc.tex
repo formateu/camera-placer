@@ -89,8 +89,8 @@ Minimalna teoretyczna liczba kamery wynosi 9. \\
 Pokrycie dla danego stanu wynosi 60.8\%. \\ \\
 Dla parametrów:
 $d_p = 1 d_k = 1$ \\
-wartość funkcji wynosi 60.8-100 = -39.2 \\ \\
-Podane rozwiązanie posiada zbyt małą liczbę kamer.
+wartość funkcji wynosi 60.8-0 = 60.8 \\ \\
+Podane rozwiązanie posiada zbyt małą liczbę kamer, by móc w stanie pokryć całą powierzchnię.
 \section{Metaheurystyka}
 Zastosowany zostanie stabuizowany algorytm symulowanego wyżarzania.
 Ze względu na to, że stworzenie funkcji heurystycznej do badanej przestrzeni jest obliczalnie
@@ -148,5 +148,18 @@ Drugi wykres prezentuje punkt sąsiedni wygenerowany w danej iteracji algorytmu.
 Może on zostać wybrany przez algorytm jako następny punkt.
 Trzeci wykres prezentuje wszystkie wygenerowane rozwiązania przez algorytm, ze względu
 na ilość użytych kamer oraz procentu pokrycia powierzchni przez kamery.
+
+\subsection{Wnioski}
+Na podstawie przeprowadzonych symulacji nie zauważyliśmy znaczącej różnicy w pracy dla różnej wartości wielkości kolejki.
+\begin{figure}[h]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=1$, $d_k=1$, $skala=5$, $queueSize=10$}\label{fig-5}}{%
+         \includegraphics[width=0.5\textwidth]{queue10.png}
+       }
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=1$, $d_k=1$, $skala=5$, $queueSize=100$}\label{fig-6}}{%
+         \includegraphics[width=0.5\textwidth]{queue100.png}
+       }
+       \end{floatrow}
+\end{figure}
 
 \end{document}
