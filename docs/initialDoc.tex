@@ -6,7 +6,12 @@
 \usepackage{graphicx}
 \usepackage{polski}
 \usepackage{mathtools}
-\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{pdflscape}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{floatrow}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
 \title{Rozmieszczanie kamer bezpieczeństwa}
@@ -58,13 +63,14 @@ $d_k$ - koszt użycia kamery \\
 $d_p$ - wartość pokrycia 1\% powierzchni\\
 \newline
 Funkcja:
-$f(p, k) = d_p*p - \frac{100d_k}{k_{min}}*max(k,k_{min}) $ \\ \\
+$f(p, k) = d_p*p - \frac{100d_k}{k_{min}}*max(0,k - k_{min}) $ \\ \\
 gdzie: \\
 p - \% pokrycia dla danego stanu \\
 k - ilość użytych kamer w danym stanie \\ \\
 Zadanie polega na maksymalizacji funkcji f. \\ \\ 
 Przykładowo \\
-$ d_p = 1 d_k = 1$ \\ \\ 
+$ d_p = 1$ \\
+$ d_k = 1$ \\ \\ 
 Dla podanych parametrów algorytm będzie znajdował ,,złoty środek pomiędzy'' 
 procentem pokrycia a ilością użytych kamer.
 Odpowiednio przeskalowując podane parametry i trzymajac odpowiedni 
@@ -100,6 +106,7 @@ Podana metoda wymaga strojenia ze względu na 2 parametry:
   \item wielkość kolejki tabu - określa ile maksymalnie jednocześnie punktów przestrzeni może ulec tabuizacji
   \item parametr funkcji temperatury - do doboru temperatury zostanie wykorzystana funkcja zależna od numeru iteracji, która udostępni parametr do strojenia
 \end{enumerate}
+
 \section{Przewidywane wyniki pracy}
 Dla kilkunastu zadanych rzutów ilustrujących różne warianty pomieszczeń np. długie, wąskie i kręte,
 duże otwarte zostaną przeprowadzone symulacje w celu odnalezienia i zaprezentowania
@@ -108,4 +115,38 @@ najlepszego rozwiązania dla danego rodzaju przypadku. \\ \\
 Wyniki zostaną zaprezentowane jako zestawy rzutów oraz wykresów
 ilustrujących pokrycie w zależności od parametrów: $d_p$ i $d_k$ wraz z wyróżnionym zestawem
 parametrów dla każdego zestawu, który ilustruje najlepsze rezultaty.
+
+\newpage
+\section{Podsumowanie}
+Dla różnych rodzajów rzutów, uruchomiony został zaimplementowany algorytm, wraz z różnymi parametrami $d_p$, $d_k$ oraz wielkością kolejki tabu.
+
+\subsection{Przykłady testowe}
+\includegraphics[scale=0.4]{mediumMap.png} 
+\includegraphics[scale=0.4]{mediumMap2.png} \\
+\includegraphics[scale=0.4]{openSpace.png}
+\includegraphics[scale=0.4]{slimLines.png} \\
+Przetestowane zostały powyższe mapy w różnych skalach. Znajdują się tutaj dwa przypadki skrajne jeżeli chodzi o szerokość i pojedyńczego korytarza na rzucie jak i o ilość korytarzy oraz dwa przypadki dosyć wyważone. \\
+W każdym przypadku promień kamery wynosił 2 i w przypadku skalowania był odpowiednio powiększany.
+
+\begin{landscape}
+\pagestyle{empty}
+\begin{figure}
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=1$, $d_k=0.1$, $skala=2$}\label{fig-3}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap_1_0.1_2}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{MediumMap, $d_p=1$, $d_k=0.1$, $skala=5$}\label{fig-4}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap_1_0.1_5}.png}
+       }
+       \end{floatrow}
+\end{figure}
+\end{landscape}
+
+Podane wykresy prezentuja przykładowe działanie algorytmu dla podanych parametrów.
+Pierwszy wykres pokazuje aktualnie wybrany punkt w jednej iteracji projektu.
+Drugi wykres prezentuje punkt sąsiedni wygenerowany w danej iteracji algorytmu.
+Może on zostać wybrany przez algorytm jako następny punkt.
+Trzeci wykres prezentuje wszystkie wygenerowane rozwiązania przez algorytm, ze względu
+na ilość użytych kamer oraz procentu pokrycia powierzchni przez kamery.
+
 \end{document}
