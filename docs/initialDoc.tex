@@ -162,4 +162,29 @@ Na podstawie przeprowadzonych symulacji nie zauważyliśmy znaczącej różnicy 
        \end{floatrow}
 \end{figure}
 
+\subsubsection{Wpływ parametrów $d_p$ i $d_k$ na zachowanie algorytmu}
+%openspace 01 01, wstawic inne
+
+Dla bardzo małych wartości $d_p$ i $d_k$ odnotowaliśmy zachowanie bardzo zbliżone do błądzenia przypadkowaego.
+Wynika to z faktu, iż różnica pomiędzy kolejnymi rozwiązaniami jest niewielka, przez co istnieje duże prawdopodobieństwo wybrania punktu gorszego.
+
+%TODO EXP
+
+%Dokladanie duzej ilosci kamer dp << dk
+%mediumMap  02 08 i inne
+
+Dla dp << dk dało sie zaobserwować częste dokładanie kamer. Wynika to z faktu, że koszt dodania kamery jest bardzo mały (róznica wartości funkcji celu) a prawdopodobieństwo dodania nowej kamery jest dosyć duże.
+
+Dla nierównomiernych powierzchni idealne wartości parametrów oscylują pomiędzy $d_k=~0.7$ $dp=1$.
+Dzięki temu, gdy kolejne wygenerowane rozwiązanie będzie zawierało dodatkową kamerę, istnieje większa szansa,
+że zostanie wybrane pomimo, że ta dodatkowa kamera mogłaby sie znajdować w nieoptymalnym dla niej miejscu w danej chwili.
+%TODO proporcje dla usera a nie wartosci parametrow
+
+\subsubsection{Zmiana reprezentacji problemu}
+W dalekiej fazie prac nad projektem, doszliśmy do wniosku, że jednym z czynników, które spowalniają przebieg symulacji jest nieoptymalna reprezentacja problemu.\\
+Lepszy pomysł reprezentacji: \\
+Do każdego pola wewnątrz rzutu, przypisujemy liczbę całkowitą i rozwiązanie reprezentujemy jako zbiór owych liczb. \\
+Dzięki takiemu podejściu, jestesmy w stanie pominąć kosztowne sprawdzanie poprawności punktów oznaczonych jako leżące w zasięgu kamer, które staraliśmy się optymalizować w trakcie prac nad implementacją.
+
+
 \end{document}
