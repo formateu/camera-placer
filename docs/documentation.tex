@@ -257,6 +257,39 @@ dla niej miejscu w danej chwili.
 W przypadku mapy zawierającej większą ilość wąskich korytarzy preferewana
 jest niższa wartość parametru $d_k$.
 %
+
+\subsubsection{Wpływ funkcji temperatury}
+Funkcja temperatury w podanym algorytmie reguluje, jak w danym kroku algorytm
+ma zachowywać się - z jakim prawdopodobieństwem wybrać nowo wygenerowany punkt,
+który jest gorszy od obecnie rozpartywanego.
+Dla przypadku MediumMap2 z parametrami $d_p=1, d_k=0.7, skala=5$ przeprowadziliśmy
+eksperymenty z innymi funkcjami. Parametr $x$ określa numer aktualnej iteracji
+i jest znormalizowany (podzielony przez limit liczby iteracji).
+\begin{figure}[H]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap2, \newline
+       $f(x)=exp(-x)$}\label{fig-13}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap2_1_0.7_5}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{MediumMap2, \newline
+       $f(x)=exp(-x/100)$}\label{fig-14}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap2exp100}.png}
+       }
+       \end{floatrow}
+\end{figure}
+\begin{figure}[H]
+\begin{floatrow}
+       \ffigbox[\FBwidth]{\caption{MediumMap2, \newline
+       $f(x)=1-x^2$}\label{fig-15}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap2xsq}.png}
+       }
+       \ffigbox[\FBwidth]{\caption{MediumMap2, \newline
+       $f(x)=-log(x)$}\label{fig-16}}{%
+         \includegraphics[width=0.5\textwidth]{{mediumMap2log}.png}
+       }
+       \end{floatrow}
+\end{figure}
+
 \subsubsection{Zmiana interfejsu użytkownia}
 Po przebadaniu zachowania algorytmu można zauważyć,
 że lepszym sposobem do strojenia algorytmu jest podanie
