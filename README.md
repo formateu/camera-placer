@@ -1,5 +1,9 @@
 # camera-placer
 
+## Sample run
+![run animation](../blob/master/sample.gif)
+
+
 ## Example usage
 See main.R for more information.
 

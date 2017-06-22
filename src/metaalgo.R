@@ -1,6 +1,8 @@
 #Project : Camera Placer
 #Authors : Przemyslaw Kopanski
 #          Mateusz Forc
+library(animation)
+require(plotrix)
 require(compiler)
 enableJIT(3)
 
@@ -77,13 +79,12 @@ anealling <- function(initialPointGenerator, calculateTemperature,
       if (!taboo$find(y)) { break }
     }
 
-
     # for optimization
     goalX <- q(x)
     goalY <- q(y)
 
     # draws the point on the graph and constructs graph
-    consumerFunc(k, goalX, goalY, length(x), 100*coveringFunc(x))
+    consumerFunc(x, k, goalX, goalY, length(x), 100*coveringFunc(x))
 
     if (goalY > goalX)
       x <- y
@@ -293,27 +294,34 @@ generateMap <- function(pointsX, pointsY, scale) {
   xPositions <- head(xPositions, -1)
   yPositions <- head(yPositions, -1)
 
-  flag <- 0
-  lastVal <- 4
-
+  # generic closed figure fill algorithm (scan lines)
   for (y in 1:dim(map)[2]) {
+    flag <- 0
+    lastVal <- 4
+    wall <- FALSE
+
     for (x in 1:dim(map)[1]) {
       if (flag == 1 && map[x,y] == 1) {
-        if (lastVal == 1) {}
-        else if (lastVal != 1) { flag <- 0 }
+        if (lastVal == 1) {
+          wall <- TRUE
+        } else if (lastVal != 1) {
+          flag <- 0
+        }
       } else if (flag == 1 && map[x,y] != 1) {
-        map[x,y] <- 3
-      } else if (map[x,y] == 1) { #flag == 0
+        if (wall) {
+          wall <- FALSE
+          flag <- 0
+        } else {
+          map[x,y] <- 3
+        }
+      } else if (flag == 0 && map[x,y] == 1) {
         flag <- 1
       }
       lastVal <- map[x,y]
     }
-
-    flag <- 0
-    lastVal <- 4
   }
 
-  return(map)
+  map
 }
 
 countMapField <- function(map) {
@@ -362,6 +370,9 @@ generateInitState <- function (map, camNum) {
 }
 
 initGlobals <- function() {
+  plotBestSolutions <<- c()
+  plotBestSolutionsIterNum <<- c()
+  globalBestGoalFunc <<- -1000
   plotDataIter <<- c()
   plotDataGoal <<- c()
   plotDataGoalGenerated <<- c()
@@ -372,15 +383,21 @@ initGlobals <- function() {
 # k - nr iteracji
 # x - rozwiazanie
 # q - wartosc f celu dla rozwiazania
-consumeNewData <- function(k, qx, qy, cams, cover) {
+consumeNewData <- function(x, k, qx, qy, cams, cover) {
   plotDataIter <<- c(plotDataIter, k)
   plotDataGoal <<- c(plotDataGoal, qx)
   plotDataGoalGenerated <<- c(plotDataGoalGenerated, qy)
   plotDataCameraNum <<- c(cams, plotDataCameraNum)
   plotDataCoveragePercent <<- c(cover, plotDataCoveragePercent)
+
+  if (qx > globalBestGoalFunc) {
+    globalBestGoalFunc <<- qx
+    plotBestSolutions[[length(plotBestSolutions)+1]] <<- x
+    plotBestSolutionsIterNum[[length(plotBestSolutionsIterNum)+1]] <<- k
+  }
 }
 
-drawGraphs <- function(fileName) {
+drawGraphs <- function(fileName, pointsX, pointsY, radius, scale) {
   fileName <- paste(fileName, ".png", sep = "")
   png(fileName)
   par(mfrow=c(3,1))
@@ -394,10 +411,34 @@ drawGraphs <- function(fileName) {
        main="Ilość użytych w rozwiązaniu kamer a procent pokrycia", type="p", pch=1,
        xlab="% pokrycia", ylab="Liczba kamer")
   dev.off()
+
+  solutionPlotGen <- drawSolution(pointsX, pointsY, radius, scale)
+  saveGIF({
+    for (i in 1:length(plotBestSolutions)) {
+      solutionPlotGen(plotBestSolutions[[i]], plotBestSolutionsIterNum[[i]])
+    }
+  })
+}
+
+drawSolution <- function(pointsX, pointsY, radius, scale) {
+  pointsX[[length(pointsX)+1]] <- pointsX[1]
+  pointsY[[length(pointsY)+1]] <- pointsY[1]
+  low <- min(min(pointsX), min(pointsY))
+  high <- max(max(pointsX), max(pointsY))
+  function(solution, k) {
+    plot(pointsX, pointsY,
+         main=paste(c("Mapa pokrycia z iteracji nr", k), collapse=" "),
+         type="l",
+         asp=1,
+         xlab="x", ylab="y")
+    for (camera in solution) {
+      draw.circle(camera[1]/scale, camera[2]/scale, radius, col="tan2")
+    }
+  }
 }
 
 main <- function(xPoints, yPoints, scale, cameraRadius, dp, dk, graphName) {
-  iternums <- 15000
+  iternums <- 20000
   temperatureFuncFactor <- 1
   tabooSize <- 10
   initGlobals()
@@ -416,5 +457,5 @@ main <- function(xPoints, yPoints, scale, cameraRadius, dp, dk, graphName) {
             function(x) { calculateCovering(map, mapField, cameraRadius, x) },
             consumeNewData,
             tabooSize)
-  drawGraphs(graphName)
+  drawGraphs(graphName, xPoints, yPoints, cameraRadius/scale, scale)
 }
