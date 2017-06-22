@@ -1,7 +1,7 @@
 # camera-placer
 
 ## Sample run
-![run animation](../blob/master/sample.gif)
+![sample run animation](../master/sample.gif)
 
 
 ## Example usage
